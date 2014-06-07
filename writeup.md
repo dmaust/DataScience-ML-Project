@@ -64,6 +64,7 @@ names(ptesting)[1] <- "classe"
 
 # Model
 
+Using a random forest model provides good enough accuracy to predict the twenty test cases.
 
 ```r
 library(randomForest)
