@@ -1,0 +1,77 @@
+Prediction of Human Activity using Accelerometer Data
+========================================================
+
+# Data preparation
+
+Load both datasets.
+```{r}
+raw_training <- read.csv('training.csv')
+raw_testing <- read.csv('testing.csv')
+```
+
+Partition training data provided into two sets. One for training and one for cross validation.
+
+```{r}
+library(caret)
+set.seed(1234)
+trainingIndex <- createDataPartition(raw_training$classe, list=FALSE, p=.9)
+training = raw_training[trainingIndex,]
+testing = raw_training[-trainingIndex,]
+```
+
+Remove indicators with near zero variance.
+```{r}
+library(caret)
+nzv <- nearZeroVar(training)
+
+training <- training[-nzv]
+testing <- testing[-nzv]
+raw_testing <- raw_testing[-nzv]
+```
+
+
+Filter columns to only include numeric features and outcome. Integer and other non-numeric features can be trained to reliably predict values in the training file provided, but when used to predict values in the testing set provided, they lead to misclassifications.
+
+```{r}
+num_features_idx = which(lapply(training,class) %in% c('numeric')  )
+
+preModel <- preProcess(training[,num_features_idx], method=c('knnImpute'))
+
+ptraining <- cbind(training$classe, predict(preModel, training[,num_features_idx]))
+ptesting <- cbind(testing$classe, predict(preModel, testing[,num_features_idx]))
+prtesting <- predict(preModel, raw_testing[,num_features_idx])
+
+#Fix Label on classe
+names(ptraining)[1] <- 'classe'
+names(ptesting)[1] <- 'classe'
+```
+
+# Model
+
+```{r}
+library(randomForest)
+rf_model  <- randomForest(classe ~ ., ptraining)
+```
+
+# Cross Validation
+
+## In sample accuracy
+```{r}
+training_pred <- predict(rf_model, ptraining) 
+print(table(training_pred, ptraining$classe))
+print(mean(training_pred == ptraining$classe))
+```
+
+## Out of sample accuracy
+```{r}
+testing_pred <- predict(rf_model, ptesting) 
+print(table(testing_pred, ptesting$classe))
+print(mean(testing_pred == ptesting$classe))
+```
+
+# Results
+
+```{r}
+answers <- predict(rf_model, prtesting) 
+answers
+```
