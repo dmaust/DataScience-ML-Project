@@ -1,4 +1,4 @@
-Prediction of Human Activity using Accelerometer Data
+Prediction of Weight Lifting Style using Accelerometer Data
 ========================================================
 
 # Data preparation
@@ -63,7 +63,7 @@ names(ptesting)[1] <- "classe"
 
 # Model
 
-Using a random forest model provides good enough accuracy to predict the twenty test cases.
+We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases.
 
 ```r
 library(randomForest)
@@ -106,7 +106,7 @@ print(mean(training_pred == ptraining$classe))
 ## [1] 1
 ```
 
-The in sample accuracy is 100% which indicates, the model does not have bias.
+The in sample accuracy is 100% which indicates, the model does not suffer from bias.
 
 ## Out of sample accuracy
 
@@ -133,7 +133,7 @@ print(mean(testing_pred == ptesting$classe))
 ## [1] 0.9908
 ```
 
-The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. 
+The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. This would imply we could achieve 99% classification accuracy on new data provided. One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
 
 # Results
 

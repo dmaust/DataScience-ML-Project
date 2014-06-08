@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>Prediction of Human Activity using Accelerometer Data</title>
+<title>Prediction of Weight Lifting Style using Accelerometer Data</title>
 
 <style type="text/css">
 body, td {
@@ -179,7 +179,7 @@ hljs.initHighlightingOnLoad();
 </head>
 
 <body>
-<h1>Prediction of Human Activity using Accelerometer Data</h1>
+<h1>Prediction of Weight Lifting Style using Accelerometer Data</h1>
 
 <h1>Data preparation</h1>
 
@@ -231,7 +231,7 @@ names(ptesting)[1] &lt;- &quot;classe&quot;
 
 <h1>Model</h1>
 
-<p>Using a random forest model provides good enough accuracy to predict the twenty test cases.</p>
+<p>We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases.</p>
 
 <pre><code class="r">library(randomForest)
 </code></pre>
@@ -266,7 +266,7 @@ print(table(training_pred, ptraining$classe))
 <pre><code>## [1] 1
 </code></pre>
 
-<p>The in sample accuracy is 100% which indicates, the model does not have bias.</p>
+<p>The in sample accuracy is 100% which indicates, the model does not suffer from bias.</p>
 
 <h2>Out of sample accuracy</h2>
 
@@ -289,7 +289,7 @@ print(table(testing_pred, ptesting$classe))
 <pre><code>## [1] 0.9908
 </code></pre>
 
-<p>The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. </p>
+<p>The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. This would imply we could achieve 99% classification accuracy on new data provided. One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.</p>
 
 <h1>Results</h1>
 
