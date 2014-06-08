@@ -1,7 +1,12 @@
 Prediction of Weight Lifting Style using Accelerometer Data
 ========================================================
 
-# Data preparation
+## Introduction
+
+With the availability of low cost accelerometers, there are many opportunities to measure human activities. One application of this is [measuring the proper form of weight lifting][wle]. In this paper we examine whether we can determine the weight lifting form using the accelerometer data collected.
+
+
+## Data preparation
 
 Load both datasets.
 ```{r}
@@ -49,52 +54,53 @@ names(ptraining)[1] <- 'classe'
 names(ptesting)[1] <- 'classe'
 ```
 
-# Model
+## Model
 
-We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases.
+We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases. Using [caret][caret], we can obtain the optimal mtry parameter of 32. This is a computationally expensive process, so only the optimized parameter is shown below.
+
 ```{r}
 library(randomForest)
-rf_model  <- randomForest(classe ~ ., ptraining)
+rf_model  <- randomForest(classe ~ ., ptraining, ntree=500, mtry=32)
 ```
 
-# Cross Validation
+## Cross Validation
 
-## In sample accuracy
+We are able to measure the accuracy using our training set and our cross validation set. With the training set we can detect if our model has bias due to ridgity of our mode. With the cross validation set, we are able to determine if we have variance due to overfitting.
+
+### In-sample accuracy
 ```{r}
 training_pred <- predict(rf_model, ptraining) 
-print(table(training_pred, ptraining$classe))
-print(mean(training_pred == ptraining$classe))
+print(confusionMatrix(training_pred, ptraining$classe))
 ```
 The in sample accuracy is 100% which indicates, the model does not suffer from bias.
 
-## Out of sample accuracy
+### Out-of-sample accuracy
 ```{r}
 testing_pred <- predict(rf_model, ptesting) 
 ```
 
 Confusion Matrix: 
 ```{r}
-print(table(testing_pred, ptesting$classe))
+print(confusionMatrix(testing_pred, ptesting$classe))
 ```
 
-Accuracy on cross validation set:
-```{r}
-print(mean(testing_pred == ptesting$classe))
-```
-
-Expected performance on new data
-```{r}
-library(binom)
-binom.confint(sum(testing_pred == ptesting$classe), length(testing_pred))
-```
-The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of a binomial confidence we would expect to achieve a 98% classification accuracy on new data provided. 
+The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of the confidence interval we would expect to achieve a 98.7% classification accuracy on new data provided. 
 
 One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
 
-# Results
+## Test Set Prediction Results
 
 Applying this model to the test data provided yields 100% classification accuracy on the twenty test observations.
 ```{r}
 answers <- predict(rf_model, prtesting) 
 answers
 ```
+
+## Conclusion
+We are able to provide very good prediction of weight lifting style as measured with accelerometers.
+
+## References
+
+[wle]: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+[caret]: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer and the R Core Team. Caret package.

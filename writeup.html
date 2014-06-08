@@ -181,7 +181,11 @@ hljs.initHighlightingOnLoad();
 <body>
 <h1>Prediction of Weight Lifting Style using Accelerometer Data</h1>
 
-<h1>Data preparation</h1>
+<h2>Introduction</h2>
+
+<p>With the availability of low cost accelerometers, there are many opportunities to measure human activities. One application of this is [measuring the proper form of weight lifting][wle]. In this paper we examine whether we can determine the weight lifting form using the accelerometer data collected.</p>
+
+<h2>Data preparation</h2>
 
 <p>Load both datasets.</p>
 
@@ -232,9 +236,9 @@ names(ptraining)[1] &lt;- &quot;classe&quot;
 names(ptesting)[1] &lt;- &quot;classe&quot;
 </code></pre>
 
-<h1>Model</h1>
+<h2>Model</h2>
 
-<p>We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases.</p>
+<p>We can build a random forest model using the numerical variables provided. As we will see later this provides good enough accuracy to predict the twenty test cases. Using [caret][caret], we can obtain the optimal mtry parameter of 32. This is a computationally expensive process, so only the optimized parameter is shown below.</p>
 
 <pre><code class="r">library(randomForest)
 </code></pre>
@@ -243,86 +247,102 @@ names(ptesting)[1] &lt;- &quot;classe&quot;
 ## Type rfNews() to see new features/changes/bug fixes.
 </code></pre>
 
-<pre><code class="r">rf_model &lt;- randomForest(classe ~ ., ptraining)
+<pre><code class="r">rf_model &lt;- randomForest(classe ~ ., ptraining, ntree = 500, mtry = 32)
 </code></pre>
 
-<h1>Cross Validation</h1>
+<h2>Cross Validation</h2>
 
-<h2>In sample accuracy</h2>
+<p>We are able to measure the accuracy using our training set and our cross validation set. With the training set we can detect if our model has bias due to ridgity of our mode. With the cross validation set, we are able to determine if we have variance due to overfitting.</p>
+
+<h3>In-sample accuracy</h3>
 
 <pre><code class="r">training_pred &lt;- predict(rf_model, ptraining)
-print(table(training_pred, ptraining$classe))
+print(confusionMatrix(training_pred, ptraining$classe))
 </code></pre>
 
-<pre><code>##              
-## training_pred    A    B    C    D    E
-##             A 5022    0    0    0    0
-##             B    0 3418    0    0    0
-##             C    0    0 3080    0    0
-##             D    0    0    0 2895    0
-##             E    0    0    0    0 3247
-</code></pre>
-
-<pre><code class="r">print(mean(training_pred == ptraining$classe))
-</code></pre>
-
-<pre><code>## [1] 1
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 5022    0    0    0    0
+##          B    0 3418    0    0    0
+##          C    0    0 3080    0    0
+##          D    0    0    0 2895    0
+##          E    0    0    0    0 3247
+## 
+## Overall Statistics
+##                                 
+##                Accuracy : 1     
+##                  95% CI : (1, 1)
+##     No Information Rate : 0.284 
+##     P-Value [Acc &gt; NIR] : &lt;2e-16
+##                                 
+##                   Kappa : 1     
+##  Mcnemar&#39;s Test P-Value : NA    
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity             1.000    1.000    1.000    1.000    1.000
+## Specificity             1.000    1.000    1.000    1.000    1.000
+## Pos Pred Value          1.000    1.000    1.000    1.000    1.000
+## Neg Pred Value          1.000    1.000    1.000    1.000    1.000
+## Prevalence              0.284    0.194    0.174    0.164    0.184
+## Detection Rate          0.284    0.194    0.174    0.164    0.184
+## Detection Prevalence    0.284    0.194    0.174    0.164    0.184
+## Balanced Accuracy       1.000    1.000    1.000    1.000    1.000
 </code></pre>
 
 <p>The in sample accuracy is 100% which indicates, the model does not suffer from bias.</p>
 
-<h2>Out of sample accuracy</h2>
+<h3>Out-of-sample accuracy</h3>
 
 <pre><code class="r">testing_pred &lt;- predict(rf_model, ptesting)
 </code></pre>
 
 <p>Confusion Matrix: </p>
 
-<pre><code class="r">print(table(testing_pred, ptesting$classe))
+<pre><code class="r">print(confusionMatrix(testing_pred, ptesting$classe))
 </code></pre>
 
-<pre><code>##             
-## testing_pred   A   B   C   D   E
-##            A 556   2   0   0   1
-##            B   1 374   1   0   0
-##            C   0   2 338   5   0
-##            D   0   0   3 315   0
-##            E   1   1   0   1 359
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   A   B   C   D   E
+##          A 556   2   0   0   0
+##          B   0 373   0   0   2
+##          C   1   3 339   1   0
+##          D   0   0   3 319   0
+##          E   1   1   0   1 358
+## 
+## Overall Statistics
+##                                         
+##                Accuracy : 0.992         
+##                  95% CI : (0.987, 0.996)
+##     No Information Rate : 0.285         
+##     P-Value [Acc &gt; NIR] : &lt;2e-16        
+##                                         
+##                   Kappa : 0.99          
+##  Mcnemar&#39;s Test P-Value : NA            
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity             0.996    0.984    0.991    0.994    0.994
+## Specificity             0.999    0.999    0.997    0.998    0.998
+## Pos Pred Value          0.996    0.995    0.985    0.991    0.992
+## Neg Pred Value          0.999    0.996    0.998    0.999    0.999
+## Prevalence              0.285    0.193    0.174    0.164    0.184
+## Detection Rate          0.284    0.190    0.173    0.163    0.183
+## Detection Prevalence    0.285    0.191    0.176    0.164    0.184
+## Balanced Accuracy       0.997    0.991    0.994    0.996    0.996
 </code></pre>
 
-<p>Accuracy on cross validation set:</p>
-
-<pre><code class="r">print(mean(testing_pred == ptesting$classe))
-</code></pre>
-
-<pre><code>## [1] 0.9908
-</code></pre>
-
-<p>Expected performance on new data</p>
-
-<pre><code class="r">library(binom)
-binom.confint(sum(testing_pred == ptesting$classe), length(testing_pred))
-</code></pre>
-
-<pre><code>##           method    x    n   mean  lower  upper
-## 1  agresti-coull 1942 1960 0.9908 0.9854 0.9943
-## 2     asymptotic 1942 1960 0.9908 0.9866 0.9950
-## 3          bayes 1942 1960 0.9906 0.9862 0.9946
-## 4        cloglog 1942 1960 0.9908 0.9855 0.9942
-## 5          exact 1942 1960 0.9908 0.9855 0.9945
-## 6          logit 1942 1960 0.9908 0.9855 0.9942
-## 7         probit 1942 1960 0.9908 0.9856 0.9943
-## 8        profile 1942 1960 0.9908 0.9859 0.9944
-## 9            lrt 1942 1960 0.9908 0.9859 0.9944
-## 10     prop.test 1942 1960 0.9908 0.9852 0.9944
-## 11        wilson 1942 1960 0.9908 0.9855 0.9942
-</code></pre>
-
-<p>The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of a binomial confidence we would expect to achieve a 98% classification accuracy on new data provided. </p>
+<p>The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of the confidence interval we would expect to achieve a 98.7% classification accuracy on new data provided. </p>
 
 <p>One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.</p>
 
-<h1>Results</h1>
+<h2>Test Set Prediction Results</h2>
 
 <p>Applying this model to the test data provided yields 100% classification accuracy on the twenty test observations.</p>
 
@@ -334,6 +354,16 @@ answers
 ##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
 ## Levels: A B C D E
 </code></pre>
+
+<h2>Conclusion</h2>
+
+<p>We are able to provide very good prediction of weight lifting style as measured with accelerometers.</p>
+
+<h2>References</h2>
+
+<p>[wle]: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human &#39;13) . Stuttgart, Germany: ACM SIGCHI, 2013.</p>
+
+<p>[caret]: Max Kuhn. Contributions from Jed Wing, Steve Weston, Andre Williams, Chris Keefer, Allan Engelhardt, Tony Cooper, Zachary Mayer and the R Core Team. Caret package.</p>
 
 </body>
 
