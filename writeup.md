@@ -48,7 +48,13 @@ Filter columns to only include numeric features and outcome. Integer and other n
 
 ```r
 num_features_idx = which(lapply(training, class) %in% c("numeric"))
+```
 
+
+We then would like to impute missing values as many exist in our training data.
+
+
+```r
 preModel <- preProcess(training[, num_features_idx], method = c("knnImpute"))
 
 ptraining <- cbind(training$classe, predict(preModel, training[, num_features_idx]))
@@ -112,6 +118,12 @@ The in sample accuracy is 100% which indicates, the model does not suffer from b
 
 ```r
 testing_pred <- predict(rf_model, ptesting)
+```
+
+
+Confusion Matrix: 
+
+```r
 print(table(testing_pred, ptesting$classe))
 ```
 
@@ -125,6 +137,9 @@ print(table(testing_pred, ptesting$classe))
 ##            E   1   1   0   1 359
 ```
 
+
+Accuracy on cross validation set:
+
 ```r
 print(mean(testing_pred == ptesting$classe))
 ```
@@ -133,7 +148,32 @@ print(mean(testing_pred == ptesting$classe))
 ## [1] 0.9908
 ```
 
-The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. This would imply we could achieve 99% classification accuracy on new data provided. One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
+
+Expected performance on new data
+
+```r
+library(binom)
+binom.confint(sum(testing_pred == ptesting$classe), length(testing_pred))
+```
+
+```
+##           method    x    n   mean  lower  upper
+## 1  agresti-coull 1942 1960 0.9908 0.9854 0.9943
+## 2     asymptotic 1942 1960 0.9908 0.9866 0.9950
+## 3          bayes 1942 1960 0.9906 0.9862 0.9946
+## 4        cloglog 1942 1960 0.9908 0.9855 0.9942
+## 5          exact 1942 1960 0.9908 0.9855 0.9945
+## 6          logit 1942 1960 0.9908 0.9855 0.9942
+## 7         probit 1942 1960 0.9908 0.9856 0.9943
+## 8        profile 1942 1960 0.9908 0.9859 0.9944
+## 9            lrt 1942 1960 0.9908 0.9859 0.9944
+## 10     prop.test 1942 1960 0.9908 0.9852 0.9944
+## 11        wilson 1942 1960 0.9908 0.9855 0.9942
+```
+
+The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of a binomial confidence we would expect to achieve a 98% classification accuracy on new data provided. 
+
+One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
 
 # Results
 

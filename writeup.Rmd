@@ -33,7 +33,11 @@ raw_testing <- raw_testing[-nzv]
 Filter columns to only include numeric features and outcome. Integer and other non-numeric features can be trained to reliably predict values in the training file provided, but when used to predict values in the testing set provided, they lead to misclassifications.
 ```{r}
 num_features_idx = which(lapply(training,class) %in% c('numeric')  )
+```
 
+We then would like to impute missing values as many exist in our training data.
+
+```{r}
 preModel <- preProcess(training[,num_features_idx], method=c('knnImpute'))
 
 ptraining <- cbind(training$classe, predict(preModel, training[,num_features_idx]))
@@ -66,10 +70,26 @@ The in sample accuracy is 100% which indicates, the model does not suffer from b
 ## Out of sample accuracy
 ```{r}
 testing_pred <- predict(rf_model, ptesting) 
+```
+
+Confusion Matrix: 
+```{r}
 print(table(testing_pred, ptesting$classe))
+```
+
+Accuracy on cross validation set:
+```{r}
 print(mean(testing_pred == ptesting$classe))
 ```
-The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. This would imply we could achieve 99% classification accuracy on new data provided. One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
+
+Expected performance on new data
+```{r}
+library(binom)
+binom.confint(sum(testing_pred == ptesting$classe), length(testing_pred))
+```
+The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. Based on the lower bound of a binomial confidence we would expect to achieve a 98% classification accuracy on new data provided. 
+
+One caveat exists that the new data must be collected and preprocessed in a manner consistent with the training data.
 
 # Results
 
