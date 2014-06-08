@@ -46,7 +46,6 @@ raw_testing <- raw_testing[-nzv]
 
 Filter columns to only include numeric features and outcome. Integer and other non-numeric features can be trained to reliably predict values in the training file provided, but when used to predict values in the testing set provided, they lead to misclassifications.
 
-
 ```r
 num_features_idx = which(lapply(training, class) %in% c("numeric"))
 
@@ -107,6 +106,7 @@ print(mean(training_pred == ptraining$classe))
 ## [1] 1
 ```
 
+The in sample accuracy is 100% which indicates, the model does not have bias.
 
 ## Out of sample accuracy
 
@@ -133,9 +133,11 @@ print(mean(testing_pred == ptesting$classe))
 ## [1] 0.9908
 ```
 
+The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. 
 
 # Results
 
+Applying this model to the test data provided yields 100% classification accuracy on the twenty test observations.
 
 ```r
 answers <- predict(rf_model, prtesting)

@@ -266,6 +266,8 @@ print(table(training_pred, ptraining$classe))
 <pre><code>## [1] 1
 </code></pre>
 
+<p>The in sample accuracy is 100% which indicates, the model does not have bias.</p>
+
 <h2>Out of sample accuracy</h2>
 
 <pre><code class="r">testing_pred &lt;- predict(rf_model, ptesting)
@@ -287,7 +289,11 @@ print(table(testing_pred, ptesting$classe))
 <pre><code>## [1] 0.9908
 </code></pre>
 
+<p>The cross validation accuracy is greater than 99%, which should be sufficient for predicting the twenty test observations. </p>
+
 <h1>Results</h1>
+
+<p>Applying this model to the test data provided yields 100% classification accuracy on the twenty test observations.</p>
 
 <pre><code class="r">answers &lt;- predict(rf_model, prtesting)
 answers
